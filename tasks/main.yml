@@ -1,0 +1,74 @@
+---
+# tasks file for jen
+
+- name: install openjdk
+  yum:
+    name: "{{ java }}"
+    state: present
+
+- name: prints the version of java
+  shell: java -version 2>&1
+  register: java_version
+- debug: msg="{{java_version.stdout}}"
+
+- name: prints the version of python
+  shell: python --version 2>&1
+  register: python_version
+- debug: msg="{{python_version.stdout}}"
+
+- name: download jenkins.repo
+  get_url:
+    url: "{{ jenkins_repo }}"
+    dest: "{{ jenkins_repo_dest }}"
+
+- name: import jenkins key
+  rpm_key:
+    state: present
+    key: "{{ jenkins_key }}"
+
+- name: install jenkins
+  yum:
+    name: jenkins
+    state: present
+
+- name: remove the jenkins folder
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ jenkins_remove }}"
+    - "{{ jenkins_remove_zip }}"
+
+- name: Download zip file from s3 bucket
+  get_url:
+    url: "{{ s3_bucket_zip_file_for_jenkins }}"
+    dest: "{{ dest_to_download_the_zip_file }}"
+
+- name: Unarchive zip file in the same path
+  unarchive:
+    src: "{{ src_path_of_zip_file }}"
+    dest: "{{ dest_path_of_zip_file }}"
+    remote_src: yes
+
+- name: Recursively change ownership of a directory
+  file:
+    path: "{{ jenkins_folder_path_to_change_ownership }}"
+    state: directory
+    recurse: yes
+    owner: jenkins
+    group: jenkins
+
+- name: to add the java path
+  command: sed -e '84i/usr/lib/jvm/zulu8.40.0.25-ca-jdk8.0.222-linux_x64/bin/java' -i /etc/init.d/jenkins
+  args:
+    warn: false
+
+- name: start jenkins
+  systemd:
+    name: jenkins
+    state: started
+
+- name: enable jenkins
+  systemd:
+    name: jenkins
+    enabled: true

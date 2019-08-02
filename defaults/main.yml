@@ -1,0 +1,14 @@
+---
+# defaults file for jen
+
+java: java-1.8.0-openjdk
+jenkins_repo: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+jenkins_repo_dest: /etc/yum.repos.d/jenkins.repo
+jenkins_key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+jenkins_remove: /var/lib/jenkins
+jenkins_remove_zip: /var/lib/jenkins.zip
+s3_bucket_zip_file_for_jenkins: https://yasansible.s3-us-west-2.amazonaws.com/jenkins.zip
+dest_to_download_the_zip_file: /var/lib
+src_path_of_zip_file: /var/lib/jenkins.zip
+dest_path_of_zip_file: /var/lib
+jenkins_folder_path_to_change_ownership: /var/lib/jenkins
